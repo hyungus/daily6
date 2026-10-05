@@ -40,26 +40,27 @@ def main():
     - 하단: 6개 뉴스 카드 그리드 및 카테고리 필터 버튼(전체, AI, 테크, 경제, 정치 - 간단한 JS 포함)
     """
 
-    print("Gemini API 호출 및 웹 검색 기반 데이터 생성 중...")
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
+    print("Gemini 3.8 Flash 호출 및 실시간 웹 검색 기반 데이터 생성 중...")
+    # 최신 규격의 Chat 세션 생성 및 웹 검색 활성화
+    chat = client.chats.create(
+        model="gemini-3.8-flash",
         config=types.GenerateContentConfig(
-            tools=[{"google_search": {}}]  # 실시간 웹 검색 활성화
+            tools=[{"google_search": {}}]
         )
     )
+    response = chat.send_message(prompt)
 
     content = response.text.strip()
-    # 만약 ```html ``` 코드블록이 포함되어 있다면 제거
+    # 마크다운 코드 블록(```html) 제거 처리
     content = re.sub(r"^```html\s*", "", content, flags=re.IGNORECASE)
     content = re.sub(r"^```\s*", "", content)
     content = re.sub(r"```$", "", content).strip()
 
-    # index.html 파일로 저장
+    # index.html 저장
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(content)
 
-    print("index.html 생성 완료!")
+    print("index.html 정상 생성 완료!")
 
 if __name__ == "__main__":
     main()
