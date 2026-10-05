@@ -41,7 +41,6 @@ def main():
     """
 
     print("Gemini 3.8 Flash 호출 및 실시간 웹 검색 기반 데이터 생성 중...")
-    # 최신 규격의 Chat 세션 생성 및 웹 검색 활성화
     chat = client.chats.create(
         model="gemini-3.8-flash",
         config=types.GenerateContentConfig(
