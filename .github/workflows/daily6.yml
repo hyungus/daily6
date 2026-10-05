@@ -1,0 +1,47 @@
+name: Daily 6 Morning Briefing
+
+on:
+  schedule:
+    # UTC 기준 00:00 = 한국 시간(KST) 매일 오전 09:00
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 사용자가 깃허브에서 수동으로 '지금 즉시 실행' 누를 수 있게 허용
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 3.11 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 필수 패키지 설치
+        run: |
+          pip install google-genai
+
+      - name: Daily 6 HTML 생성 스크립트 실행
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python daily6.py
+
+      - name: GitHub Pages 업로드 준비
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: GitHub Pages 웹 배포
+        id: deployment
+        uses: actions/deploy-pages@v4
